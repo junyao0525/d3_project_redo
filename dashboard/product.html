@@ -3,11 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Dashboard</title>
+    <title>Seller Dashboard</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="assets/js/global.js"></script>
 </head>
 <body class="px-2">
     <div id="header-placeholder"></div>
+    <div id="selected-state-info" style="position: absolute; background: rgba(0,0,0,0.8); color: white; padding: 8px; border-radius: 4px; font-size: 12px; pointer-events: none; z-index: 1000; opacity: 0;"></div>
+    <div class="container-fluid" style="margin-top: 70px;">
+        <div class="d-flex justify-content-between align-items-center ">
+            <!-- <h5 class="mb-0">Regional Performance Metrics</h5> -->
+        </div>
+        <!-- Summary Cards -->
+        <div class="row g-2 mb-2">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body d-flex justify-content-between align-items-center py-2">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2 text-success fs-4"><i class="bi bi-cash-coin"></i></div>
+                            <h6 class="card-title mb-0 fw-bold fs-5" style="font-size: 14px;">Total Revenues</h6>
+                        </div>
+                        <div>
+                            <div id="total-revenue" class="fw-bold fs-5">R$ </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body d-flex justify-content-between align-items-center py-2">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2 text-primary fs-4"><i class="bi bi-truck"></i></div>
+                            <h6 class="card-title mb-0 fw-bold fs-5" style="font-size: 14px;">Total Product</h6>
+                        </div>
+                        <div class="fw-bold fs-5"><span id="total-product"></span> products</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body d-flex justify-content-between align-items-center py-2">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2 text-warning fs-4"><i class="bi bi-star-fill"></i></div>
+                            <h6 class="card-title mb-0 fw-bold fs-5" style="font-size: 14px;">Total Delivered order</h6>
+                        </div>
+                        <div class="fw-bold fs-5"><span id="total-delivered-order"></span> orders</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Cards -->
+        <div class="row g-3">
+            <!-- Left Side - Map (4 columns) -->
+            <div class="col-md-4">
+                <div class="row g-2">
+                <div class="col-md-12 pb-1">
+                    <div class="card shadow-sm h-full">
+                        <div class="card-body d-flex justify-content-between align-items-center py-2">
+                            <div class="d-flex align-items-center">
+                                <div class="me-2 text-success fs-4"><i class="bi bi-arrow-clockwise"></i></div>
+                                <h6 class="card-title mb-0 fw-bold fs-5" style="font-size: 14px;">Reset All Filters</h6>
+                            </div>
+                            <div>
+                                <button id="reset-all-filters" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-arrow-clockwise"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm h-full">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 id="map-title" class="card-title mb-0" style="font-size: 18px;">
+                                Total Revenue Seller by State
+                            </h5>
+                            <select id="state-dropdown" class="form-select" style="max-width: 150px;">
+                                <option value="">All States</option>
+                            </select>
+                        </div>
+                        <div class="bg-light rounded p-3">
+                            <div id="brazil-map" class="d-flex justify-content-center align-items-center">
+                                <div class="text-muted">Loading map...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Right Side - Charts (8 columns) -->
+            <div class="col-md-8">
+                <div class="row g-3">
+                    <!-- Top Chart -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center pb-2">
+                                    <h5 class="card-title mb-0" style="font-size: 18px;">
+                                        Total Seller Delivery order
+                                    </h5>
+                                    <select id="sort-direction" class="form-select" style="max-width: 150px;">
+                                            <option value="descending"selected >Descending</option>
+                                            <option value="ascending">Ascending</option>
+                                    </select>
+                                </div>
+                                <div id="product-trends" class="position-relative" style="min-height: 210px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Chart -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center pb-2">
+                                    <h5 id="sales-state-title" class="card-title mb-0" style="font-size: 18px;">
+                                        Total Delivery order by State
+                                    </h5>
+                                    <select id="sort-direction-state" class="form-select" style="max-width: 150px;">
+                                            <option value="descending"selected >Descending</option>
+                                            <option value="ascending">Ascending</option>
+                                    </select>
+                                </div>
+                                <div id="sales-trends" class="position-relative" style="min-height: 210px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row g-3 pt-1">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center pb-2">
+                                    <h5 id="week-order-title" class="card-title mb-0" style="font-size: 18px;">
+                                        Week Order Trends
+                                    </h5>
+                                    <select id="sort-direction-week" class="form-select" style="max-width: 170px;">
+                                            <option value="all-weeks" selected>All Weeks</option>
+                                            <option value="weekdays">Weekdays Only</option>
+                                            <option value="weekends">Weekends Only</option>
+                                            <option value="monday">Monday</option>
+                                            <option value="tuesday">Tuesday</option>
+                                            <option value="wednesday">Wednesday</option>
+                                            <option value="thursday">Thursday</option>
+                                            <option value="friday">Friday</option>
+                                            <option value="saturday">Saturday</option>
+                                            <option value="sunday">Sunday</option>
+                                    </select>
+                                </div>
+                                <div id="week-order-trends" class="position-relative" style="min-height: 210px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Chart -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center pb-2">
+                                    <h5 id="order-trends-title" class="card-title mb-0 pt-2" style="font-size: 18px;">
+                                        Order Trends Over Time
+                                    </h5>
+                                </div>
+                                <div id="box-plot-container" class="position-relative" style="min-height: 210px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Your JavaScript files -->
+    <script src="assets/js/seller.js"></script>
+    <script src="assets/js/global.js"></script>
 </body>
 </html>

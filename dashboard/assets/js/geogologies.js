@@ -118,77 +118,7 @@ function getTextColor(backgroundColor) {
   return brightness > 128 ? "#000" : "#fff";
 }
 
-async function updateMapStats(data) {
 
-    const stateRevenue = d3.rollup(
-        data,
-        (v) => d3.sum(v, (d) => +d.payment_value || 0),
-        (d) => d.customer_state
-    );
-
-    console.log(stateRevenue)
-    // Calculate delivery time by state
-    const stateDelivery = d3.rollup(
-        data.filter(d => d.order_status === "delivered"),
-        (v) => {
-            const deliveryTimes = v.map(order => {
-                const purchaseDate = new Date(order.order_purchase_timestamp);
-                const deliveredDate = new Date(order.order_delivered_customer_date);
-                const diffTime = deliveredDate - purchaseDate;
-                return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            }).filter(days => days >= 0);
-            return d3.mean(deliveryTimes);
-        },
-        (d) => d.customer_state
-    );
-
-    // Calculate review scores by state
-    const stateReviews = d3.rollup(
-        data.filter(d => d.order_status === "delivered" && d.review_score !== -1 && d.review_score !== null),
-        (v) => d3.mean(v, (d) => +d.review_score),
-        (d) => d.customer_state
-    );
-
-    // Find top performing state
-    const topState = Array.from(stateRevenue.entries()).reduce((a, b) => 
-        stateRevenue.get(a[0]) > stateRevenue.get(b[0]) ? a : b
-    );
-
-    // Find fastest delivery state
-    const fastestDelivery = Array.from(stateDelivery.entries()).reduce((a, b) => 
-        stateDelivery.get(a[0]) < stateDelivery.get(b[0]) ? a : b
-    );
-
-    // Find highest satisfaction state
-    const highestSatisfaction = Array.from(stateReviews.entries()).reduce((a, b) => 
-        stateReviews.get(a[0]) > stateReviews.get(b[0]) ? a : b
-    );
-
-    // Update the stats panel
-    if (topState) {
-        document.getElementById("top-state").textContent = topState[0];
-        document.getElementById("top-state-revenue").textContent = 
-            `R$ ${topState[1].toLocaleString("pt-BR")}`;
-    }
-
-    if (fastestDelivery) {
-        document.getElementById("fastest-delivery").textContent = fastestDelivery[0];
-        document.getElementById("fastest-delivery-days").textContent = 
-            `${fastestDelivery[1].toFixed(1)} days average`;
-    }
-
-    if (highestSatisfaction) {
-        document.getElementById("highest-satisfaction").textContent = highestSatisfaction[0];
-        document.getElementById("highest-satisfaction-score").textContent = 
-            `${highestSatisfaction[1].toFixed(2)} ★ average`;
-    }
-
-    console.log("📊 Map stats updated:", {
-        topState: topState ? `${topState[0]} (R$ ${topState[1].toLocaleString()})` : "N/A",
-        fastestDelivery: fastestDelivery ? `${fastestDelivery[0]} (${fastestDelivery[1].toFixed(1)} days)` : "N/A",
-        highestSatisfaction: highestSatisfaction ? `${highestSatisfaction[0]} (${highestSatisfaction[1].toFixed(2)} ★)` : "N/A"
-    });
-}
 
 
 function drawMap(data, geojson, selectedState) {
@@ -620,7 +550,7 @@ function updateDashboardForCategory(category) {
     totalRevenue(filteredData);
     meanOrderReview(filteredData);
     avgDeliveryTime(filteredData);
-    updateMapStats(filteredData);
+    
     drawSalesTrends(filteredData);
     weekOrderTrends(filteredData);
     drawOrderTrendLine(filteredData);
@@ -661,7 +591,7 @@ function updateDashboardForState(state) {
     totalRevenue(filteredData);
     meanOrderReview(filteredData);
     avgDeliveryTime(filteredData);
-    updateMapStats(filteredData);
+    
     drawProductTrends(filteredData);
     drawSalesTrends(filteredData);
     weekOrderTrends(filteredData);
@@ -725,7 +655,7 @@ function updateDashboardForDay(day) {
     totalRevenue(filteredData);
     meanOrderReview(filteredData);
     avgDeliveryTime(filteredData);
-    updateMapStats(filteredData);
+   
     drawProductTrends(filteredData);
     drawSalesTrends(filteredData);
     weekOrderTrends(filteredData);
@@ -1486,7 +1416,6 @@ function resetAllFilters() {
     totalRevenue(fullData);
     meanOrderReview(fullData);
     avgDeliveryTime(fullData);
-    updateMapStats(fullData);
     drawProductTrends(fullData);
     drawSalesTrends(fullData);
     weekOrderTrends(fullData);
@@ -1500,7 +1429,6 @@ function updateMetrics(data,selectedState) {
     totalRevenue(data);
     meanOrderReview(data);
     avgDeliveryTime(data);
-    updateMapStats(data);
     drawProductTrends(data);
     drawSalesTrends(data);
     weekOrderTrends(data);

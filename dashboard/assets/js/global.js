@@ -15,5 +15,6 @@ fetch('header.html')
     // Trigger dashboard initialization after header is loaded
     if (typeof initializeDashboard === 'function') {
         initializeDashboard();
+        initializeSellerDashboard();
     }
 });
